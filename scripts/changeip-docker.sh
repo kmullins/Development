@@ -15,6 +15,24 @@ function changeips (){
 			 echo " ... "
 			 echo " changeing IP from the previous ip $oldip "
 			 echo " to new extenal ip $IP"
+
+
+#                         cp  /var/www/html/webclient/i2b2_config_data.js /tmp
+#                         cp  /var/www/html/admin/i2b2_config_data.js /tmp
+#                         cp  /etc/httpd/conf.d/i2b2_proxy.conf /tmp
+                         
+#			 grep http  /var/www/html/webclient/i2b2_config_data.js
+#                         grep http /var/www/html/admin/i2b2_config_data.js
+#                         grep http /etc/httpd/conf.d/i2b2_proxy.conf
+#
+#                         echo "executing change with arg:$IP"
+#                         sed -i -e "s/${oldip}/${IP}/" /var/www/html/webclient/i2b2_config_data.js
+#                         sed -i -e "s/${oldip}/$1/" /var/www/html/admin/i2b2_config_data.js
+#                         sed -i -e "s/${oldip}/$1/" /etc/httpd/conf.d/i2b2_proxy.conf
+
+#                         grep http  /var/www/html/webclient/i2b2_config_data.js
+#                         grep http /var/www/html/admin/i2b2_config_data.js
+#                         grep http /etc/httpd/conf.d/i2b2_proxy.conf
 }
 
 if [ -z $1 ]
@@ -73,3 +91,7 @@ fi
 
 
 
+echo "running prescript with arg:$1"
+sed -i -e "s/localhost/$1/" /var/www/html/webclient/i2b2_config_data.js
+sed -i -e "s/localhost/$1/" /var/www/html/admin/i2b2_config_data.js
+sed -i -e "s/localhost/$1/" /etc/httpd/conf.d/i2b2_proxy.conf
