@@ -1,0 +1,4 @@
+psql -U i2b2pm -d i2b2 << EOF
+    update pm_cell_data set URL=replace(URL,'40','65');
+EOF
+
