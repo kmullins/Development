@@ -7,6 +7,7 @@ echo "/etc/httpd/conf.d/i2b2_proxy.com   ........  $var1"
 echo "/var/www/html/webclient/i2b2_config_data ..  $var2"
 echo "/var/www/html/admin/i2b2_config_data .....   $var3"
 
-
+sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep -oP '\d+\.\d+\.\d+\.\d+'
+sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep -oP '\d+\.\d+\.\d+\.\d+\:\d+'
 
 
