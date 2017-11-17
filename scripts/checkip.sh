@@ -12,6 +12,8 @@ echo "IP's in postgres i2b2pm.pm_cell_data field "
 sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep -oP '\d+\.\d+\.\d+\.\d+'
 echo " "
 echo "IP's with port numbers in postgres i2b2pm.pm_cell_data field "
+echo "You should see the IP address followed by :8080 "
+echo " "
 sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep -oP '\d+\.\d+\.\d+\.\d+\:\d+'
 echo " "
 
