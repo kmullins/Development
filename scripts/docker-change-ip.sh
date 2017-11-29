@@ -47,14 +47,10 @@ else
      echo " "
      fi
 
-export proxyy='/etc/httpd/conf.d/i2b2_proxy.conf'
-export conff='/var/www/html/webclient/i2b2_config_data'
-export dockerdir='/home/kmullins/docker'
+export dockerdir='/tmp'
 
      
    echo "..... $IP ..... "
-#   echo "${proxyy}"
-#   echo "${conff}"
      
      
    changeipi2b2proxyconf() { 
@@ -69,22 +65,28 @@ export dockerdir='/home/kmullins/docker'
    echo " Current IP in i2b2-web container: "
    export currentip=`sudo docker exec i2b2-web /bin/bash -c "grep PassReverse  /etc/httpd/conf.d/i2b2_proxy.conf" | grep -oP '\d+\.\d+\.\d+\.\d+'` 
 
-   echo "  ............... $currentip ....${currentip}........... "
-   sudo docker cp i2b2-web:/etc/httpd/conf.d/i2b2_proxy.conf ${dockerdir}
-   echo "Current IP = ${currentip}"
-   echo "Changing IP from ${currentip} to ${IP} in i2b2_proxy.conf"
-   sudo sed -i -e "s/${currentip}/${IP}/g"  ${dockerdir}/i2b2_proxy.conf
-   export checksedip=`grep PassReverse ${dockerdir}/i2b2_proxy.conf | grep -oP '\d+\.\d+\.\d+\.\d+'`
-   echo "Check IP after SED = ${checksedip}"
-   if [ "${checksedip}" = "${IP}" ]; then
+
+   if [ "${currentip}" = "${IP}" ]; then
+      echo " ${currentip} is the same as ${IP}"
+
+   else
+      echo "  ................${currentip}........... "
+      sudo docker cp i2b2-web:/etc/httpd/conf.d/i2b2_proxy.conf ${dockerdir}
+      echo "Current IP = ${currentip}"
+      echo "Changing IP from ${currentip} to ${IP} in i2b2_proxy.conf"
+      sudo sed -i -e "s/${currentip}/${IP}/g"  ${dockerdir}/i2b2_proxy.conf
+      export checksedip=`grep PassReverse ${dockerdir}/i2b2_proxy.conf | grep -oP '\d+\.\d+\.\d+\.\d+'`
+      echo "Check IP after SED = ${checksedip}"
+      if [ "${checksedip}" = "${IP}" ]; then
         echo "Copy i2b2_proxy.conf back into i2b2-web container"
-        sudo docker cp /home/kmullins/docker/i2b2_proxy.conf i2b2-web:/etc/httpd/conf.d/i2b2_proxy.conf
+        sudo docker cp ${dockerdir}/i2b2_proxy.conf i2b2-web:/etc/httpd/conf.d/i2b2_proxy.conf
         echo " "
         echo "Updated IP in i2b2-web container: "
         sudo docker exec i2b2-web /bin/bash -c "grep PassReverse /etc/httpd/conf.d/i2b2_proxy.conf" | grep -oP '\d+\.\d+\.\d+\.\d+'
-   else
-        echo " IP was not changed"
-   fi
+      else
+        echo " IP was not changed in i2b2-web:/etc/httpd/conf.d/i2b2_proxy.conf"
+      fi
+  fi
 }
 
 
@@ -101,22 +103,28 @@ export dockerdir='/home/kmullins/docker'
    echo " Current IP in i2b2-web container: "
    export currentip=`sudo docker exec i2b2-web /bin/bash -c "grep urlCellPM  /var/www/html/webclient/i2b2_config_data.js" | grep -oP '\d+\.\d+\.\d+\.\d+'` 
 
-   echo "  ..........${currentip}........... "
-   sudo docker cp i2b2-web:/var/www/html/webclient/i2b2_config_data.js ${dockerdir}
-   echo "Current IP = ${currentip}"
-   echo "Changing IP from ${currentip} to ${IP} in i2b2_conf_data.js"
-   sudo sed -i -e "s/${currentip}/${IP}/g"  ${dockerdir}/i2b2_config_data.js
-   export checksedip=`grep urlCellPM ${dockerdir}/i2b2_config_data.js | grep -oP '\d+\.\d+\.\d+\.\d+'`
-   echo "Check IP after SED = ${checksedip}"
-   if [ "${checksedip}" = "${IP}" ]; then
+
+   if [ "${currentip}" = "${IP}" ]; then
+      echo " ${currentip} is the same as ${IP}"
+
+   else
+      echo "  ..........${currentip}........... "
+      sudo docker cp i2b2-web:/var/www/html/webclient/i2b2_config_data.js ${dockerdir}
+      echo "Current IP = ${currentip}"
+      echo "Changing IP from ${currentip} to ${IP} in i2b2_conf_data.js"
+      sudo sed -i -e "s/${currentip}/${IP}/g"  ${dockerdir}/i2b2_config_data.js
+      export checksedip=`grep urlCellPM ${dockerdir}/i2b2_config_data.js | grep -oP '\d+\.\d+\.\d+\.\d+'`
+      echo "Check IP after SED = ${checksedip}"
+      if [ "${checksedip}" = "${IP}" ]; then
         echo "Copy i2b2_config_data.js back into i2b2-web container"
-        sudo docker cp /home/kmullins/docker/i2b2_config_data.js i2b2-web:/var/www/html/webclient/i2b2_config_data.js
+        sudo docker cp ${dockerdir}/i2b2_config_data.js i2b2-web:/var/www/html/webclient/i2b2_config_data.js
         echo " "
         echo "Updated IP in i2b2-web container: "
         sudo docker exec i2b2-web /bin/bash -c "grep urlCellPM /var/www/html/webclient/i2b2_config_data.js" | grep -oP '\d+\.\d+\.\d+\.\d+'
-   else
-        echo " IP was not changed"
-   fi
+      else
+          echo " IP was not changed /var/www/html/webclient/i2b2_config_data.js"
+      fi
+  fi
 }
 
 ### update i2b2pm.pm_cell_data set url=replace(url,'230',230:'230:8080');
@@ -135,32 +143,39 @@ export dockerdir='/home/kmullins/docker'
 #   cd ${dockerdir}
    echo " Current IP in i2b2-pg container: "
 
-   export currentip=`sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep -oP '\d+\.\d+\.\d+\.\d+\:\d+'`
+   export currentip=`sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep  IM | grep -oP '\d+\.\d+\.\d+\.\d+'`
 
    echo "  ..........${currentip}........... "
    echo "Current IP = ${currentip}"
-   echo "Changing IP from ${currentip} to ${IP} in i2b2_conf_data.js"
+
+       export replacefiller="''${currentip}'',''${IP}''  "
+       echo " *************** $replacefiller **************"
+
+   if [ "${currentip}" = "${IP}" ]; then
+      echo " ${currentip} is the same as ${IP}"
+   else
+      echo "Changing IP from ${currentip} to ${IP} in i2b2_conf_data.js"
 
    
-   sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'update i2b2pm.pm_cell_data set url=replace(url,'$currentip','$IP');
+      sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'update i2b2pm.pm_cell_data set url=replace(url,${replacefiller});'"
+      
 
-
-  checksedip=`sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep -oP '\d+\.\d+\.\d+\.\d+\:\d+'`
-#   echo "Check IP after SED = ${checksedip}"
-   if [ "${checksedip}" = "${IP}" ]; then
-        echo "Copy i2b2_config_data.js back into i2b2-web container"
-        sudo docker cp /home/kmullins/docker/i2b2_config_data.js i2b2-web:/var/www/html/webclient/i2b2_config_data.js
+      checksedip=`sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep IM | grep -oP '\d+\.\d+\.\d+\.\d+'`
+      echo "Check IP after Update = ${checksedip}"
+      if [ "${checksedip}" = "${IP}" ]; then
         echo " "
-        echo "Updated IP in i2b2-web container: "
-        sudo docker exec i2b2-web /bin/bash -c "grep urlCellPM /var/www/html/webclient/i2b2_config_data.js" | grep -oP '\d+\.\d+\.\d+\.\d+'
-   else
-        echo " IP was not changed"
-
+        echo "Updated IP in i2b2-pg container: "
+#        sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep IM | grep -oP '\d+\.\d+\.\d+\.\d+'
+      else
+         echo " IP was not changed in i2b2-pg"
+      fi
+   fi
+}
 
  echo "*****************************"
 
-    changeipi2b2proxyconf
-    changeipi2b2configdata
+#    changeipi2b2proxyconf
+#    changeipi2b2configdata
     changeippmcelldata
 
  echo "**********theend*******************"
