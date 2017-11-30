@@ -149,8 +149,12 @@ export dockerdir='/tmp'
    echo "Current IP = ${currentip}"
 
 ####       export replacefiller=" '"''$currentip''"','$IP' "
-       export replacefiller="'"''$currentip''"','"''$IP''"'"
-       echo " *************** $replacefiller **************"
+####       export replacefiller="'"''$currentip''"','"''$IP''"'"
+####       echo " *************** $replacefiller **************"
+
+    export quotedcurrentip="'"''${currentip}''"'"
+    export quotedip="'"''${IP}''"'"
+    
 
      
    if [ "${currentip}" = "${IP}" ]; then
@@ -159,11 +163,11 @@ export dockerdir='/tmp'
       echo "Changing IP from ${currentip} to ${IP} in i2b2_conf_data.js"
 
    
-   updatelinefiller="docker exec i2b2-pg /bin/bash -c \"psql  -d i2b2 -c \"update i2b2pm.pm_cell_data set url=replace(url,$replacefiller);\" \" "
+   updatedline="###docker exec i2b2-pg /bin/bash -c \"psql  -d i2b2 -c \"update i2b2pm.pm_cell_data set url=replace(url,$quotedcurrentip,$quotedip);\" \" "
 
-   echo " #### $updatelinefiller "
+   echo " #### $updatedline "
    echo ".. "
-   $updatelinefiller
+   #$updatelinefiller
    echo "  .. "    
 
   # sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'update i2b2pm.pm_cell_data set url=replace(url,$replacefiller);'"
