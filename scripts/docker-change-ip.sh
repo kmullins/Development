@@ -148,16 +148,25 @@ export dockerdir='/tmp'
    echo "  ..........${currentip}........... "
    echo "Current IP = ${currentip}"
 
-       export replacefiller="''${currentip}'',''${IP}''  "
+####       export replacefiller=" '"''$currentip''"','$IP' "
+       export replacefiller="'"''$currentip''"','"''$IP''"'"
        echo " *************** $replacefiller **************"
 
+     
    if [ "${currentip}" = "${IP}" ]; then
       echo " ${currentip} is the same as ${IP}"
    else
       echo "Changing IP from ${currentip} to ${IP} in i2b2_conf_data.js"
 
    
-      sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'update i2b2pm.pm_cell_data set url=replace(url,${replacefiller});'"
+   updatelinefiller="docker exec i2b2-pg /bin/bash -c \"psql  -d i2b2 -c \"update i2b2pm.pm_cell_data set url=replace(url,$replacefiller);\" \" "
+
+   echo " #### $updatelinefiller "
+   echo ".. "
+   $updatelinefiller
+   echo "  .. "    
+
+  # sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'update i2b2pm.pm_cell_data set url=replace(url,$replacefiller);'"
       
 
       checksedip=`sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep IM | grep -oP '\d+\.\d+\.\d+\.\d+'`
