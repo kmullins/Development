@@ -187,8 +187,8 @@ export dockerdir='/tmp'
 
  echo "*****************************"
 
-#    changeipi2b2proxyconf
-#    changeipi2b2configdata
+    changeipi2b2proxyconf
+    changeipi2b2configdata
     changeippmcelldata
 
  echo "**********theend*******************"
