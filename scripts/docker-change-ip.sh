@@ -70,18 +70,17 @@ export dockerdir='/tmp'
       echo " ${currentip} is the same as ${IP}"
 
    else
-      echo "  ................${currentip}........... "
       sudo docker cp i2b2-web:/etc/httpd/conf.d/i2b2_proxy.conf ${dockerdir}
       echo "Current IP = ${currentip}"
       echo "Changing IP from ${currentip} to ${IP} in i2b2_proxy.conf"
       sudo sed -i -e "s/${currentip}/${IP}/g"  ${dockerdir}/i2b2_proxy.conf
       export checksedip=`grep PassReverse ${dockerdir}/i2b2_proxy.conf | grep -oP '\d+\.\d+\.\d+\.\d+'`
-      echo "Check IP after SED = ${checksedip}"
+  #   echo "Check IP after SED = ${checksedip}"
       if [ "${checksedip}" = "${IP}" ]; then
         echo "Copy i2b2_proxy.conf back into i2b2-web container"
         sudo docker cp ${dockerdir}/i2b2_proxy.conf i2b2-web:/etc/httpd/conf.d/i2b2_proxy.conf
         echo " "
-        echo "Updated IP in i2b2-web container: "
+        echo "Checking IP address in i2b2-web container: "
         sudo docker exec i2b2-web /bin/bash -c "grep PassReverse /etc/httpd/conf.d/i2b2_proxy.conf" | grep -oP '\d+\.\d+\.\d+\.\d+'
       else
         echo " IP was not changed in i2b2-web:/etc/httpd/conf.d/i2b2_proxy.conf"
@@ -96,8 +95,8 @@ export dockerdir='/tmp'
    echo " Changing IP's for /var/www/webclient/i2b2_config_data.js "   
    echo " "
 
-  checksedip=0.0.0.0
-  currentip=0.0.0.0
+   checksedip=0.0.0.0
+   currentip=0.0.0.0
 
    cd ${dockerdir}
    echo " Current IP in i2b2-web container: "
@@ -108,13 +107,12 @@ export dockerdir='/tmp'
       echo " ${currentip} is the same as ${IP}"
 
    else
-      echo "  ..........${currentip}........... "
       sudo docker cp i2b2-web:/var/www/html/webclient/i2b2_config_data.js ${dockerdir}
       echo "Current IP = ${currentip}"
       echo "Changing IP from ${currentip} to ${IP} in i2b2_conf_data.js"
       sudo sed -i -e "s/${currentip}/${IP}/g"  ${dockerdir}/i2b2_config_data.js
       export checksedip=`grep urlCellPM ${dockerdir}/i2b2_config_data.js | grep -oP '\d+\.\d+\.\d+\.\d+'`
-      echo "Check IP after SED = ${checksedip}"
+      echo "Check IP after change = ${checksedip}"
       if [ "${checksedip}" = "${IP}" ]; then
         echo "Copy i2b2_config_data.js back into i2b2-web container"
         sudo docker cp ${dockerdir}/i2b2_config_data.js i2b2-web:/var/www/html/webclient/i2b2_config_data.js
@@ -127,31 +125,18 @@ export dockerdir='/tmp'
   fi
 }
 
-### update i2b2pm.pm_cell_data set url=replace(url,'230',230:'230:8080');
-### sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep -oP '\d+\.\d+\.\d+\.\d+\:\d+'
-
-
  changeippmcelldata() { 
 
-   echo " "
-   echo " Changing IP's for i2b2pm.pm_cell_data fields "   
-   echo " "
+    echo " "
+    echo " Changing IP's for i2b2pm.pm_cell_data fields "   
+    echo " "
 
-  checksedip=0.0.0.0
-  currentip=0.0.0.0
+    checksedip=0.0.0.0
+    currentip=0.0.0.0
 
-#   cd ${dockerdir}
-   echo " Current IP in i2b2-pg container: "
-
-   export currentip=`sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep  IM | grep -oP '\d+\.\d+\.\d+\.\d+'`
-
-   echo "  ..........${currentip}........... "
-   echo "Current IP = ${currentip}"
-
-####       export replacefiller=" '"''$currentip''"','$IP' "
-####       export replacefiller="'"''$currentip''"','"''$IP''"'"
-####       echo " *************** $replacefiller **************"
-
+    echo " Current IP in i2b2-pg container: "
+    export currentip=`sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep  IM | grep -oP '\d+\.\d+\.\d+\.\d+'`
+    echo "Current IP = ${currentip}"
     export quotedcurrentip="'"''${currentip}''"'"
     export quotedip="'"''${IP}''"'"
     
@@ -161,37 +146,48 @@ export dockerdir='/tmp'
       echo " ${currentip} is the same as ${IP}"
    else
       echo "Changing IP from ${currentip} to ${IP} in i2b2_conf_data.js"
-
-   
-   updatedline="###docker exec i2b2-pg /bin/bash -c \"psql  -d i2b2 -c \"update i2b2pm.pm_cell_data set url=replace(url,$quotedcurrentip,$quotedip);\" \" "
-
-   echo " #### $updatedline "
-   echo ".. "
-   #$updatelinefiller
-   echo "  .. "    
-
-  # sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'update i2b2pm.pm_cell_data set url=replace(url,$replacefiller);'"
-      
+     # updatedline="###docker exec i2b2-pg /bin/bash -c \"psql  -d i2b2 -c \"update i2b2pm.pm_cell_data set url=replace(url,$quotedcurrentip,$quotedip);\" \" "
+      docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c \"update i2b2pm.pm_cell_data set url=replace(url,$quotedcurrentip,$quotedip);\" " 
 
       checksedip=`sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep IM | grep -oP '\d+\.\d+\.\d+\.\d+'`
       echo "Check IP after Update = ${checksedip}"
       if [ "${checksedip}" = "${IP}" ]; then
         echo " "
         echo "Updated IP in i2b2-pg container: "
-#        sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep IM | grep -oP '\d+\.\d+\.\d+\.\d+'
+        sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep IM | grep -oP '\d+\.\d+\.\d+\.\d+'
       else
          echo " IP was not changed in i2b2-pg"
       fi
    fi
 }
 
+
+ checkipdocker() { 
+
+
+var1=`docker exec i2b2-web /bin/bash -c "grep Reverse /etc/httpd/conf.d/i2b2_proxy.conf  | grep -oP '\d+\.\d+\.\d+\.\d+'"`
+var2=`docker exec i2b2-web /bin/bash -c " grep urlCellPM /var/www/html/webclient/i2b2_config_data.js | grep -oP '\d+\.\d+\.\d+\.\d+'"`
+
+echo " "
+echo "/etc/httpd/conf.d/i2b2_proxy.com   ........  $var1"
+echo "/var/www/html/webclient/i2b2_config_data ..  $var2"
+echo "IP's in postgres i2b2pm.pm_cell_data field "
+sudo docker exec i2b2-pg /bin/bash -c "psql  -d i2b2 -c 'select * from i2b2pm.pm_cell_data;'" | grep -oP '\d+\.\d+\.\d+\.\d+'
+echo " "
+
+
+}
+
+
+
  echo "*****************************"
 
     changeipi2b2proxyconf
     changeipi2b2configdata
     changeippmcelldata
+    checkipdocker
 
- echo "**********theend*******************"
+ echo "********** theend *******************"
 
 
 
