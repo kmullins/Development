@@ -179,7 +179,6 @@ echo " "
 }
 
 
-
  echo "*****************************"
 
     changeipi2b2proxyconf
