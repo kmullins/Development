@@ -11,12 +11,7 @@ sudo yum -y install ant tar sed bzip2 git php perl wget zip unzip httpd patch
 setenforce 0
 service iptables stop
 
-source scripts/install/install.sh
-
-
-
-
-
+#source scripts/install/install.sh
 
 PWD=$(pwd)
 BASE=$PWD
@@ -61,7 +56,7 @@ check_homes_for_install(){
     [ -d $JBOSS_HOME ] && echo "found JBOSS_HOME:$JBOSS_HOME"|| download_wildfly && install_wildfly
 }
 
-[ -f  i2b2-core-server.zip ] || wget -v https://github.com/i2b2/i2b2-core-server/archive/master.zip -O i2b2-core-server.zip
+#[ -f  i2b2-core-server.zip ] || wget -v https://github.com/i2b2/i2b2-core-server/archive/master.zip -O i2b2-core-server.zip
 
 download_i2b2_source(){
   BASE=$1
@@ -133,7 +128,7 @@ download_axis_jar(){
 }
 
 
-copy_axis_to_wildfly $JBOSS_HOME
+#####copy_axis_to_wildfly $JBOSS_HOME
 
 
 
@@ -269,8 +264,8 @@ install_wildfly(){
 #compile_i2b2core $BASE
 
    check_homes_for_install $(pwd)
-   #download_i2b2_source $BASE
-   #unzip_i2b2core $BASE
+   download_i2b2_source $(pwd)
+   unzip_i2b2core $(pwd)
    #compile_i2b2core $(pwd)
 
 #run_wildfly $(pwd)
@@ -280,38 +275,6 @@ install_wildfly(){
 #check_homes_for_install
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-echo "searching for $CRC/patch_crc_PDOcall"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-download_i2b2_source $(pwd)
-unzip_i2b2core $(pwd)
 
 
 
